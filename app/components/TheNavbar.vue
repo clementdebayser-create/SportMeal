@@ -1,25 +1,32 @@
 <template>
-    <nav class="text-center py-4 border dark:border-gray-500 flex items-center justify-center">
-        The Navbar
+  <header
+    class="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl"
+  >
+    <nav
+      class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-6 sm:px-8"
+      aria-label="Navigation principale"
+    >
+      <NuxtLink
+        to="/"
+        class="group flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <span
+          class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform duration-300 group-hover:scale-[1.04]"
+          aria-hidden="true"
+        >
+          <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4c-2.2 3.4-6 5.6-6 9.4A6 6 0 0 0 12 20a6 6 0 0 0 6-6.6C18 9.6 14.2 7.4 12 4Z" />
+          </svg>
+        </span>
+        <span class="font-serif text-lg font-semibold tracking-tight text-foreground">
+          SportMeal
+        </span>
+      </NuxtLink>
 
-        <client-only>
-            <button class="flex px-2 py-1 rounded-md" @click="toggleDark()">
-                <svg v-if="isDark"  class="h-8 w-8 mr-2 p-1" :class="isDark == 'light' ? 'active':''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <svg v-else class="h-8 w-8 p-1" :class="isDark ? 'active':''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-            </button>
-        </client-only>
+      <div class="flex items-center gap-1 sm:gap-2">
+        <NavbarAuthMenu />
+        <NavbarThemeToggle />
+      </div>
     </nav>
+  </header>
 </template>
-
-<script setup>
-const isDark = useDark();
-const toggleDark = useToggle(isDark);
-</script>
-
-<style lang="postcss" scoped>
-
-</style>

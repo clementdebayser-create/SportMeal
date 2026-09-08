@@ -5,6 +5,27 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-03-01',
   devtools: { enabled: true },
   css: ['~/assets/css/tailwind.css'],
+  app: {
+    head: {
+      htmlAttrs: { lang: 'fr' },
+      title: 'SportMeal — Recettes adaptées à ton sport',
+      meta: [
+        {
+          name: 'description',
+          content:
+            'SportMeal propose des recettes personnalisées selon ton sport, ton niveau, ton objectif et tes goûts.',
+        },
+      ],
+      link: [
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,650&family=Outfit:wght@400;500;600;700&display=swap',
+        },
+      ],
+    },
+  },
   vite: {
     plugins: [
       tailwindcss(),
@@ -13,6 +34,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/image',
     '@pinia/nuxt',
+    'pinia-plugin-persistedstate/nuxt',
     '@vueuse/nuxt',
     'shadcn-nuxt'
   ],
