@@ -5,6 +5,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-03-01',
   devtools: { enabled: true },
   css: ['~/assets/css/tailwind.css'],
+  runtimeConfig: {
+    public: {
+      // Alimentés par NUXT_PUBLIC_API_URL / NUXT_PUBLIC_KEY (fichier .env).
+      apiUrl: '',
+      key: '',
+    },
+  },
   app: {
     head: {
       htmlAttrs: { lang: 'fr' },

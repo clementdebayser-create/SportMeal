@@ -1,3 +1,4 @@
+
 <template>
   <section class="relative overflow-hidden">
     <div
@@ -20,9 +21,18 @@
           et vraiment utile.
         </p>
         <div class="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Button as-child size="lg" class="h-12 rounded-2xl px-7 text-base shadow-sm">
-            <NuxtLink to="/register">Créer mon profil</NuxtLink>
-          </Button>
+          <ClientOnly>
+            <Button as-child size="lg" class="h-12 rounded-2xl px-7 text-base shadow-sm">
+              <NuxtLink :to="auth.isAuthenticated ? '/account' : '/register'">
+                {{ auth.isAuthenticated ? 'Mon compte' : 'Créer mon profil' }}
+              </NuxtLink>
+            </Button>
+            <template #fallback>
+              <Button as-child size="lg" class="h-12 rounded-2xl px-7 text-base shadow-sm">
+                <NuxtLink to="/register">Créer mon profil</NuxtLink>
+              </Button>
+            </template>
+          </ClientOnly>
           <Button
             as-child
             variant="outline"
@@ -59,4 +69,6 @@
 
 <script setup lang="ts">
 import { REASSURANCES } from '~/constants/landing'
+
+const auth = useAuthStore()
 </script>

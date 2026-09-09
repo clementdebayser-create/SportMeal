@@ -8,12 +8,31 @@
         </p>
       </div>
       <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm" aria-label="Pied de page">
-        <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/register">
-          Créer un compte
-        </NuxtLink>
-        <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/login">
-          Se connecter
-        </NuxtLink>
+        <ClientOnly>
+          <NuxtLink
+            v-if="auth.isAuthenticated"
+            class="text-muted-foreground transition-colors hover:text-foreground"
+            to="/account"
+          >
+            Mon compte
+          </NuxtLink>
+          <template v-else>
+            <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/register">
+              Créer un compte
+            </NuxtLink>
+            <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/login">
+              Se connecter
+            </NuxtLink>
+          </template>
+          <template #fallback>
+            <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/register">
+              Créer un compte
+            </NuxtLink>
+            <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/login">
+              Se connecter
+            </NuxtLink>
+          </template>
+        </ClientOnly>
         <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/recipes">
           Recettes
         </NuxtLink>
@@ -28,5 +47,6 @@
 </template>
 
 <script setup lang="ts">
+const auth = useAuthStore()
 const year = new Date().getFullYear()
 </script>

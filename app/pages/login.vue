@@ -65,6 +65,8 @@
 <script setup lang="ts">
 import { email, required } from '~/lib/validators'
 
+definePageMeta({ middleware: 'guest' })
+
 useHead({ title: 'Se connecter — SportMeal' })
 
 const auth = useAuthStore()

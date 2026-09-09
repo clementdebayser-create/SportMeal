@@ -10,13 +10,26 @@
           avec ta pratique, tes objectifs et tes goûts.
         </p>
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Button
-            as-child
-            size="lg"
-            class="h-11 rounded-xl bg-background px-6 text-base text-foreground shadow-sm hover:bg-background/90"
-          >
-            <NuxtLink to="/register">Créer un compte</NuxtLink>
-          </Button>
+          <ClientOnly>
+            <Button
+              as-child
+              size="lg"
+              class="h-11 rounded-xl bg-background px-6 text-base text-foreground shadow-sm hover:bg-background/90"
+            >
+              <NuxtLink :to="auth.isAuthenticated ? '/account' : '/register'">
+                {{ auth.isAuthenticated ? 'Mon compte' : 'Créer un compte' }}
+              </NuxtLink>
+            </Button>
+            <template #fallback>
+              <Button
+                as-child
+                size="lg"
+                class="h-11 rounded-xl bg-background px-6 text-base text-foreground shadow-sm hover:bg-background/90"
+              >
+                <NuxtLink to="/register">Créer un compte</NuxtLink>
+              </Button>
+            </template>
+          </ClientOnly>
           <Button
             as-child
             variant="ghost"
@@ -30,3 +43,7 @@
     </LandingReveal>
   </section>
 </template>
+
+<script setup lang="ts">
+const auth = useAuthStore()
+</script>

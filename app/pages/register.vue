@@ -111,7 +111,11 @@ const { values, errors, submitting, submitError, handleSubmit } = useForm(
 function onSubmit() {
   return handleSubmit(async (v) => {
     // Champs garantis non vides par la validation ci-dessus.
-    await auth.register(v as RegisterPayload)
+    const { needsEmailConfirmation } = await auth.register(v as RegisterPayload)
+    if (needsEmailConfirmation) {
+      submitError.value = 'Compte créé. Confirme ton adresse e-mail via le lien reçu, puis connecte-toi.'
+      return
+    }
     await navigateTo('/account')
   })
 }

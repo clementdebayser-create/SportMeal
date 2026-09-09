@@ -7,13 +7,13 @@
         class="rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground"
       >
         <NuxtLink to="/account">
-          Bonjour {{ auth.user?.name }}
+          {{ auth.firstName ? `Bonjour ${auth.firstName}` : 'Mon compte' }}
         </NuxtLink>
       </Button>
       <Button
         variant="ghost"
         class="hidden rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground sm:inline-flex"
-        @click="auth.logout()"
+        @click="logout()"
       >
         Se déconnecter
       </Button>
@@ -40,4 +40,5 @@
 
 <script setup lang="ts">
 const auth = useAuthStore()
+const logout = useLogout()
 </script>
