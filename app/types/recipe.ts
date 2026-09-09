@@ -19,3 +19,15 @@ export interface RecipeRow {
 export interface FavoriteRecipe extends RecipeRow {
   favoritedAt: string
 }
+
+/** Une recette + les noms de ses tags (soir, viande, prise_de_masse, …). */
+export interface RecipeWithTags extends RecipeRow {
+  tags: string[]
+}
+
+/** Filtres choisis sur « Mon repas du soir ». `null` = pas de contrainte sur ce critère. */
+export interface RecipeSearchFilters {
+  mealType: string | null
+  objective: string | null
+  maxMinutes: number | null
+}

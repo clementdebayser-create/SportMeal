@@ -23,11 +23,17 @@ create policy "favorites_delete_own"
   using ((select auth.uid()) = user_id);
 
 --------------------------------------------------------------------------------
--- public.recipes : catalogue lisible par tous (y compris visiteurs non connectés)
+-- Catalogue lisible par tous (y compris visiteurs non connectés) :
+-- recipes + le système de tags utilisé par « Mon repas du soir ».
 --------------------------------------------------------------------------------
 alter table public.recipes enable row level security;
-
 drop policy if exists "recipes_public_read" on public.recipes;
-create policy "recipes_public_read"
-  on public.recipes for select
-  using (true);
+create policy "recipes_public_read" on public.recipes for select using (true);
+
+alter table public.tags enable row level security;
+drop policy if exists "tags_public_read" on public.tags;
+create policy "tags_public_read" on public.tags for select using (true);
+
+alter table public.recipe_tags enable row level security;
+drop policy if exists "recipe_tags_public_read" on public.recipe_tags;
+create policy "recipe_tags_public_read" on public.recipe_tags for select using (true);

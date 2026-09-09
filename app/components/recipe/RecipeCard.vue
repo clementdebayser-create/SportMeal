@@ -10,15 +10,9 @@
       class="mb-4 aspect-video w-full rounded-2xl object-cover"
     >
 
-    <p
-      v-if="!compact"
-      class="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground"
-    >
-      Repas proposé
-    </p>
     <h3
       class="font-serif font-medium text-foreground"
-      :class="compact ? 'text-lg' : 'mt-2 text-2xl'"
+      :class="compact ? 'text-lg' : 'text-2xl'"
     >
       {{ recipe.title }}
     </h3>
@@ -43,16 +37,10 @@
       </div>
     </dl>
 
-    <ul v-if="!compact" class="mt-4 space-y-1.5 text-sm text-muted-foreground">
-      <li class="flex items-center gap-2">
-        <span class="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-        {{ macros }}
-      </li>
-      <li v-if="totalTime" class="flex items-center gap-2">
-        <span class="size-1.5 rounded-full bg-primary" aria-hidden="true" />
-        {{ totalTime }} · {{ servingsLabel }}
-      </li>
-    </ul>
+    <p class="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+      <span class="size-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+      {{ macros }}
+    </p>
 
     <div v-if="$slots.actions" :class="compact ? 'mt-3' : 'mt-5'">
       <slot name="actions" />
@@ -69,12 +57,14 @@ const props = defineProps<{
   compact?: boolean
 }>()
 
+const totalTime = computed(() => {
+  const total = (props.recipe.prep_time_minutes ?? 0) + (props.recipe.cook_time_minutes ?? 0)
+  return total > 0 ? `${total} min` : '—'
+})
+
 const stats = computed(() => [
+  { label: 'Temps total', value: totalTime.value },
   { label: 'Difficulté', value: props.recipe.difficulty ?? '—' },
-  {
-    label: 'Prépa',
-    value: props.recipe.prep_time_minutes != null ? `${props.recipe.prep_time_minutes} min` : '—',
-  },
   {
     label: 'Calories',
     value: props.recipe.calories_kcal != null ? `${props.recipe.calories_kcal} kcal` : '—',
@@ -88,16 +78,5 @@ const macros = computed(() => {
   if (r.carbs_g != null) parts.push(`${r.carbs_g} g glucides`)
   if (r.fat_g != null) parts.push(`${r.fat_g} g lipides`)
   return parts.join(' · ') || 'Macros non renseignées'
-})
-
-const totalTime = computed(() => {
-  const r = props.recipe
-  const total = (r.prep_time_minutes ?? 0) + (r.cook_time_minutes ?? 0)
-  return total > 0 ? `${total} min au total` : ''
-})
-
-const servingsLabel = computed(() => {
-  const n = props.recipe.servings ?? 1
-  return `${n} portion${n > 1 ? 's' : ''}`
 })
 </script>

@@ -1,46 +1,50 @@
 import { defineStore } from 'pinia'
-import type { RecipeRow } from '~/types/recipe'
+import type { RecipeRow, RecipeSearchFilters, RecipeWithTags } from '~/types/recipe'
 import type { LoadStatus } from '~/types/status'
-import { fetchAllRecipes } from '~/lib/recipesApi'
-
-function pickRandom(list: RecipeRow[], excludeId?: string): RecipeRow {
-  const pool = list.length > 1 && excludeId ? list.filter(r => r.id !== excludeId) : list
-  return pool[Math.floor(Math.random() * pool.length)]!
-}
+import { fetchSoirRecipes } from '~/lib/recipesApi'
 
 /**
- * « Mon repas du soir » : propose une recette tirée de `public.recipes`.
- * `status` suit le chargement du catalogue (3 états + idle) ; `current` est
- * la recette actuellement affichée.
+ * « Mon repas du soir » : recherche filtrée.
+ *
+ * `all` cache les recettes du soir (+ tags) ; `results` est la liste filtrée
+ * par la dernière recherche. `status` = 3 états + idle. `searched` distingue
+ * « pas encore cherché » de « cherché, 0 résultat » (message convivial, pas
+ * une erreur).
  */
 export const useRecipesStore = defineStore('recipes', {
   state: () => ({
-    pool: [] as RecipeRow[],
-    current: null as RecipeRow | null,
+    all: [] as RecipeWithTags[],
+    results: [] as RecipeRow[],
     status: 'idle' as LoadStatus,
     error: null as string | null,
+    searched: false,
   }),
 
   actions: {
-    async suggest() {
+    async search(filters: RecipeSearchFilters) {
       this.status = 'loading'
       this.error = null
       try {
-        if (!this.pool.length) {
-          this.pool = await fetchAllRecipes(useSupabase())
+        if (!this.all.length) {
+          this.all = await fetchSoirRecipes(useSupabase())
         }
-        if (!this.pool.length) {
-          this.current = null
-          this.status = 'error'
-          this.error = 'Aucune recette disponible pour le moment.'
-          return
-        }
-        this.current = pickRandom(this.pool, this.current?.id)
+
+        this.results = this.all.filter((recipe) => {
+          if (filters.mealType && !recipe.tags.includes(filters.mealType)) return false
+          if (filters.objective && !recipe.tags.includes(filters.objective)) return false
+          if (filters.maxMinutes != null) {
+            const total = (recipe.prep_time_minutes ?? 0) + (recipe.cook_time_minutes ?? 0)
+            if (total > filters.maxMinutes) return false
+          }
+          return true
+        })
+
+        this.searched = true
         this.status = 'ready'
       }
       catch (error) {
         this.status = 'error'
-        this.error = error instanceof Error ? error.message : 'Impossible de charger une recette.'
+        this.error = error instanceof Error ? error.message : 'Impossible de charger les recettes.'
       }
     },
   },
