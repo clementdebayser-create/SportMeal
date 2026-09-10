@@ -14,7 +14,7 @@
             class="text-muted-foreground transition-colors hover:text-foreground"
             to="/account"
           >
-            Mon compte
+            Mon profil
           </NuxtLink>
           <template v-else>
             <NuxtLink class="text-muted-foreground transition-colors hover:text-foreground" to="/register">

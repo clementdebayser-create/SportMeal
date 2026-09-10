@@ -17,7 +17,7 @@
               class="h-11 rounded-xl bg-background px-6 text-base text-foreground shadow-sm hover:bg-background/90"
             >
               <NuxtLink :to="auth.isAuthenticated ? '/account' : '/register'">
-                {{ auth.isAuthenticated ? 'Mon compte' : 'Créer un compte' }}
+                {{ auth.isAuthenticated ? 'Mon profil' : 'Créer un compte' }}
               </NuxtLink>
             </Button>
             <template #fallback>

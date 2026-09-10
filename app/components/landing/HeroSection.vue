@@ -24,12 +24,12 @@
           <ClientOnly>
             <Button as-child size="lg" class="h-12 rounded-2xl px-7 text-base shadow-sm">
               <NuxtLink :to="auth.isAuthenticated ? '/account' : '/register'">
-                {{ auth.isAuthenticated ? 'Mon compte' : 'Créer mon profil' }}
+                {{ auth.isAuthenticated ? 'Mon profil' : 'Créer un compte' }}
               </NuxtLink>
             </Button>
             <template #fallback>
               <Button as-child size="lg" class="h-12 rounded-2xl px-7 text-base shadow-sm">
-                <NuxtLink to="/register">Créer mon profil</NuxtLink>
+                <NuxtLink to="/register">Créer un compte</NuxtLink>
               </Button>
             </template>
           </ClientOnly>

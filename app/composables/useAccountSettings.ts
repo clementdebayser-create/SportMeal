@@ -4,8 +4,9 @@ import type { ProfilePatch } from '~/types/auth'
  * Opérations d'édition du compte connecté.
  *
  * Ne fait AUCUN appel Supabase direct : orchestre `useProfile()` (table
- * `public.users` + tables annexes) et `useAuth()` (mot de passe). À invoquer
- * dans un handler côté client, pas au setup SSR.
+ * `public.users`), `useDietaryPreferences()` (régime / allergies / aversions)
+ * et `useAuth()` (mot de passe). À invoquer dans un handler côté client, pas
+ * au setup SSR.
  */
 export function useAccountSettings() {
   /** Met à jour les champs de profil modifiés dans `public.users`. */
@@ -23,7 +24,7 @@ export function useAccountSettings() {
     allergeneTagIds: string[]
     dislikedIngredientIds: string[]
   }): Promise<{ failures: string[] }> {
-    const { syncDietaryTags, syncDislikedIngredients } = useProfile()
+    const { syncDietaryTags, syncDislikedIngredients } = useDietaryPreferences()
     const failures: string[] = []
 
     try {

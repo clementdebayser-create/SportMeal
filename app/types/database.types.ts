@@ -7,8 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -136,6 +134,7 @@ export type Database = {
       }
       recipes: {
         Row: {
+          allergens_audited: boolean
           calories_kcal: number | null
           carbs_g: number | null
           cook_time_minutes: number | null
@@ -151,6 +150,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          allergens_audited?: boolean
           calories_kcal?: number | null
           carbs_g?: number | null
           cook_time_minutes?: number | null
@@ -166,6 +166,7 @@ export type Database = {
           title: string
         }
         Update: {
+          allergens_audited?: boolean
           calories_kcal?: number | null
           carbs_g?: number | null
           cook_time_minutes?: number | null

@@ -1,80 +1,75 @@
-Nuxt 4 Shadcn-vue Starter Template
-=====================================
-![image](https://github.com/user-attachments/assets/64d24990-0d97-46dd-9e88-406ac591db18)
+# SportMeal
 
-## Features
-* Dark Mode
-* Image optimization with @nuxt/image
-* Integration with Tailwind CSS 4
-* State management with Pinia
-* Utilities and composables from VueUse
-* Icon components from Radix Icons
+Application web de recommandation de repas personnalisés selon le sport, l'objectif et les préférences alimentaires de l'utilisateur.
 
-## Installed Packages
+Projet réalisé par **Clément** .
 
--   `@nuxt/image`: ^1.11.0
--   `@nuxtjs/color-mode`: ^3.5.2
--   `@pinia/nuxt`: ^0.11.2
--   `@radix-icons/vue`: ^1.0.0
--   `@tailwindcss/vite`: ^4.1.12
--   `@vueuse/core`: ^13.8.0
--   `@vueuse/nuxt`: ^13.8.0
--   `class-variance-authority`: ^0.7.1
--   `clsx`: ^2.1.1
--   `lucide-vue-next`: ^0.542.0
--   `nuxt`: ^4.0.3
--   `pinia`: ^3.0.3
--   `radix-vue`: ^1.9.17
--   `reka-ui`: ^2.5.0
--   `shadcn-nuxt`: ^2.2.0
--   `tailwind-merge`: ^3.3.1
--   `tailwindcss`: ^4.1.12
--   `tailwindcss-animate`: ^1.0.7
--   `tw-animate-css`: ^1.3.7
--   `typescript`: ^5.9.2 (dev dependency)
--   `vue`: latest
--   `vue-router`: latest
--   `@tailwindcss/typography`: ^0.5.16 (dev dependency)
+## Fonctionnalités
 
-## Project Structure
+- **Authentification** : inscription, connexion, déconnexion, mot de passe oublié (Supabase Auth)
+- **Profil sportif et alimentaire** : sport pratiqué, niveau, objectif, fréquence d'entraînement, données physiques (âge, sexe, poids, taille), régime alimentaire, allergies, goûts et aversions — le tout modifiable après inscription
+- **Recommandation de repas** : recherche de recettes selon type de plat, objectif et temps de préparation, avec exclusion automatique des recettes contenant une allergie déclarée ou un ingrédient détesté
+- **Favoris** : enregistrement et consultation des repas préférés
+- **Sécurité** : Row Level Security (RLS) activée sur toutes les tables — chaque utilisateur n'accède qu'à ses propres données
 
-* `components`: Reusable Vue components
-* `layouts`: Page layouts
-* `pages`: Page components
-* `plugins`: Nuxt plugins
-* `store`: Pinia store
+## Stack technique
 
-## Getting Started
+- **[Nuxt 4](https://nuxt.com/)** (Vue 3, SSR), TypeScript
+- **Tailwind CSS v4**, **shadcn-nuxt** + **reka-ui** pour l'interface
+- **Pinia** + **pinia-plugin-persistedstate** pour l'état partagé
+- **[Supabase](https://supabase.com/)** : base de données Postgres, authentification, Row Level Security
 
-To get started with this project, run the following commands:
+## Structure du projet
+
+```
+app/
+  pages/         écrans et routes
+  components/    morceaux d'interface réutilisables
+  composables/   logique et accès aux données (appels Supabase)
+  stores/        état partagé et cache (Pinia)
+  types/         types de la base et types métier
+  utils/         fonctions utilitaires pures
+  constants/     listes de valeurs statiques (sports, objectifs...)
+  layouts/       gabarits de page (Nuxt)
+  middleware/    protection des routes (Nuxt)
+server/api/      appels nécessitant un secret (inutilisé pour l'instant)
+public/          images et fichiers publics
+docs/            documentation du projet (schéma de base, etc.)
+```
+
+Voir [`docs/database.md`](./docs/database.md) pour le détail du schéma de base de données et des politiques de sécurité (RLS).
+
+## Installation
 
 ```bash
 npm install
+```
+
+Créer un fichier `.env` à la racine avec les identifiants du projet Supabase :
+
+```
+SUPABASE_URL=<URL du projet, disponible dans Project Settings > API>
+SUPABASE_KEY=<clé anon, disponible dans Project Settings > API>
+```
+
+## Développement
+
+```bash
 npm run dev
 ```
 
-This will start the development server and you can access the application at `http://localhost:3000`.
+L'application est accessible sur `http://localhost:3000`.
 
-## Building for Production
-
-To build the application for production, run the following command:
+## Build de production
 
 ```bash
 npm run build
 ```
 
-This will generate the production-ready code in the `dist` directory.
+## Base de données
 
-## Generating Static Site
-
-To generate a static site, run the following command:
+Le schéma complet (tables, relations, politiques RLS) est documenté dans [`docs/database.md`](./docs/database.md). Les types TypeScript correspondants sont générés dans `app/types/database.types.ts` via :
 
 ```bash
-npm run generate
+npx supabase gen types typescript --project-id qaannbudahqalupwhufp --schema public > app/types/database.types.ts
 ```
-
-This will generate a static site in the `dist` directory.
-
-## License
-
-This project is licensed under the MIT License.

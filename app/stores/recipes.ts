@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { RecipeSearchFilters, RecipeWithTags } from '~/types/recipe'
 import type { LoadStatus } from '~/types/status'
+import { filterByProfile, filterDinnerRecipes } from '~/utils/recipeFilters'
 
 /**
  * « Mon repas du soir » : état de la recherche filtrée (état partagé + cache).
@@ -53,7 +54,6 @@ export const useRecipesStore = defineStore('recipes', {
      */
     applyFilters() {
       if (!this.lastFilters) return
-      const { filterDinnerRecipes, filterByProfile } = useRecipes()
       const auth = useAuthStore()
 
       const manual = filterDinnerRecipes(this.all, this.lastFilters)

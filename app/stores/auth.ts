@@ -129,7 +129,7 @@ export const useAuthStore = defineStore('auth', {
     /** Charge régime / allergies / goûts. Échec silencieux (affiché comme vide). */
     async loadFoodPreferences(client?: SupabaseClient) {
       if (!this.user) return
-      const { fetchDietary, fetchTastes } = useProfile(client)
+      const { fetchDietary, fetchTastes } = useDietaryPreferences(client)
       const requestedFor = this.user.id
       const seq = ++this.profileLoadSeq
       try {
