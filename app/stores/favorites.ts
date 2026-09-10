@@ -1,14 +1,13 @@
 import { defineStore } from 'pinia'
 import type { FavoriteRecipe, RecipeRow } from '~/types/recipe'
 import type { LoadStatus } from '~/types/status'
-import { addFavorite, fetchFavorites, removeFavorite } from '~/lib/favoritesApi'
 
 /**
- * Repas enregistrés de l'utilisateur connecté.
+ * Repas enregistrés de l'utilisateur connecté (état partagé + cache).
  *
- * `status` : 3 états explicites (idle | loading | ready | error), comme le
- * profil sur /account. Les mises à jour add/remove sont optimistes avec
- * rollback en cas d'échec ; les erreurs d'action sont levées pour être
+ * `status` : 3 états explicites (idle | loading | ready | error). Les appels
+ * réseau sont délégués à `useFavorites()`. Les mises à jour add/remove sont
+ * optimistes avec rollback ; les erreurs d'action sont levées pour être
  * affichées près du bouton concerné (pas d'échec silencieux).
  */
 export const useFavoritesStore = defineStore('favorites', {
@@ -32,13 +31,13 @@ export const useFavoritesStore = defineStore('favorites', {
         this.reset()
         return
       }
-      const supabase = useSupabase()
+      const { fetchFavorites } = useFavorites()
       const requestedFor = auth.user.id
 
       this.status = 'loading'
       this.error = null
       try {
-        const items = await fetchFavorites(supabase, requestedFor)
+        const items = await fetchFavorites(requestedFor)
         if (useAuthStore().user?.id !== requestedFor) return
         this.items = items
         this.status = 'ready'
@@ -58,8 +57,9 @@ export const useFavoritesStore = defineStore('favorites', {
     async add(recipe: RecipeRow) {
       const auth = useAuthStore()
       if (!auth.user) throw new Error('Connecte-toi pour enregistrer ce repas.')
+      const { addFavorite } = useFavorites()
 
-      await addFavorite(useSupabase(), auth.user.id, recipe.id)
+      await addFavorite(auth.user.id, recipe.id)
 
       if (!this.savedIds.has(recipe.id)) {
         this.items = [{ ...recipe, favoritedAt: new Date().toISOString() }, ...this.items]
@@ -70,11 +70,12 @@ export const useFavoritesStore = defineStore('favorites', {
     async remove(recipeId: string) {
       const auth = useAuthStore()
       if (!auth.user) return
+      const { removeFavorite } = useFavorites()
 
       const snapshot = [...this.items]
       this.items = this.items.filter(r => r.id !== recipeId)
       try {
-        await removeFavorite(useSupabase(), auth.user.id, recipeId)
+        await removeFavorite(auth.user.id, recipeId)
       }
       catch (error) {
         this.items = snapshot

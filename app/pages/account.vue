@@ -5,7 +5,7 @@
       aria-hidden="true"
     />
 
-    <div class="relative mx-auto w-full max-w-2xl px-6 py-16">
+    <div class="relative mx-auto w-full max-w-3xl px-6 py-16">
       <ClientOnly>
         <!-- Déconnecté : la redirection vers /login est en cours -->
         <p v-if="!auth.isAuthenticated" class="text-sm text-muted-foreground">
@@ -60,28 +60,60 @@
           <h1 class="font-serif text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Bonjour {{ auth.profile.first_name }}
           </h1>
-          <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Voici les informations liées à ton profil sportif.
+          <p class="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Voici les informations liées à ton profil sportif. Tu peux tout modifier
+            à tout moment, rien n'est figé.
           </p>
 
-          <dl class="mt-8 grid gap-3 sm:grid-cols-2">
-            <div
-              v-for="field in fields"
-              :key="field.label"
-              class="rounded-2xl border border-border/70 bg-card/70 px-4 py-4 shadow-sm"
-            >
-              <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {{ field.label }}
-              </dt>
-              <dd class="mt-1 text-base font-medium text-foreground">
-                {{ field.value }}
-              </dd>
-            </div>
-          </dl>
+          <p
+            v-if="savedMessage"
+            class="mt-4 rounded-2xl bg-accent/60 px-4 py-3 text-sm text-foreground"
+          >
+            {{ savedMessage }}
+          </p>
 
-          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div class="mt-10 space-y-9">
+            <section v-for="group in sections" :key="group.title">
+              <h2 class="font-serif text-xl font-medium text-foreground">
+                {{ group.title }}
+              </h2>
+              <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+                <div
+                  v-for="field in group.items"
+                  :key="field.label"
+                  class="rounded-2xl border border-border/70 bg-card/70 px-4 py-4 shadow-sm"
+                  :class="field.wide ? 'sm:col-span-2' : ''"
+                >
+                  <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {{ field.label }}
+                  </dt>
+                  <dd class="mt-1 text-base font-medium text-foreground break-words">
+                    {{ field.value }}
+                  </dd>
+                </div>
+              </dl>
+            </section>
+          </div>
+
+          <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button as-child variant="outline" size="lg" class="h-11 rounded-2xl">
               <NuxtLink to="/recipes">Voir mes recettes</NuxtLink>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              class="h-11 rounded-2xl"
+              @click="editOpen = true"
+            >
+              Modifier le profil
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              class="h-11 rounded-2xl"
+              @click="pwOpen = true"
+            >
+              Changer le mot de passe
             </Button>
             <Button
               variant="ghost"
@@ -93,60 +125,8 @@
             </Button>
           </div>
 
-          <div class="mt-14">
-            <h2 class="font-serif text-2xl font-medium text-foreground">
-              Mes repas enregistrés
-            </h2>
-
-            <!-- chargement -->
-            <p
-              v-if="favorites.status === 'idle' || favorites.status === 'loading'"
-              class="mt-3 text-sm text-muted-foreground"
-            >
-              Chargement…
-            </p>
-
-            <!-- erreur -->
-            <div v-else-if="favorites.status === 'error'" class="mt-3">
-              <p class="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                {{ favorites.error || 'Impossible de charger tes repas enregistrés.' }}
-              </p>
-              <Button
-                variant="outline"
-                size="lg"
-                class="mt-3 h-11 rounded-2xl"
-                @click="favorites.retry()"
-              >
-                Réessayer
-              </Button>
-            </div>
-
-            <!-- chargé -->
-            <template v-else>
-              <p v-if="!favorites.items.length" class="mt-3 text-sm text-muted-foreground">
-                Aucun repas enregistré pour l’instant. Va sur « Mon repas du soir » pour en ajouter.
-              </p>
-              <div v-else class="mt-4 grid gap-4 sm:grid-cols-2">
-                <RecipeCard
-                  v-for="recipe in favorites.items"
-                  :key="recipe.id"
-                  :recipe="recipe"
-                  compact
-                >
-                  <template #actions>
-                    <Button
-                      variant="ghost"
-                      class="h-9 rounded-xl px-3 text-sm text-muted-foreground hover:text-foreground"
-                      @click="onRemove(recipe.id)"
-                    >
-                      Retirer
-                    </Button>
-                  </template>
-                </RecipeCard>
-              </div>
-              <p v-if="removeError" class="mt-3 text-sm text-destructive">{{ removeError }}</p>
-            </template>
-          </div>
+          <AccountEditDialog v-model:open="editOpen" @saved="onSaved" />
+          <AccountPasswordDialog v-model:open="pwOpen" @saved="onSaved" />
         </div>
 
         <template #fallback>
@@ -158,40 +138,72 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { SEXES } from '~/constants/profile'
+import { joinLabels, joinNames, objectifLabel } from '~/utils/profileFormat'
 
 definePageMeta({ middleware: 'auth' })
 
 useHead({ title: 'Mon compte — SportMeal' })
 
 const auth = useAuthStore()
-const favorites = useFavoritesStore()
 const logout = useLogout()
 
-const removeError = ref('')
+const editOpen = ref(false)
+const pwOpen = ref(false)
+const savedMessage = ref('')
 
-onMounted(() => favorites.load())
+watch([editOpen, pwOpen], ([edit, pw]) => {
+  if (edit || pw) savedMessage.value = ''
+})
 
-async function onRemove(recipeId: string) {
-  removeError.value = ''
-  try {
-    await favorites.remove(recipeId)
-  }
-  catch (error) {
-    removeError.value = error instanceof Error ? error.message : 'Suppression impossible.'
-  }
+function onSaved(message: string) {
+  savedMessage.value = message
 }
 
-const fields = computed(() => {
+function sexeLabel(value: string | null) {
+  return SEXES.find(s => s.value === value)?.label ?? '—'
+}
+
+interface ProfileField {
+  label: string
+  value: string
+  /** Occupe toute la largeur (valeurs longues : listes d'ingrédients…). */
+  wide?: boolean
+}
+
+const sections = computed<{ title: string, items: ProfileField[] }[]>(() => {
   const p = auth.profile
   if (!p) return []
   return [
-    { label: 'Prénom', value: p.first_name || '—' },
-    { label: 'Adresse e-mail', value: p.email || auth.user?.email || '—' },
-    { label: 'Sport pratiqué', value: p.sport || '—' },
-    { label: 'Niveau', value: p.level || '—' },
-    { label: 'Objectif', value: p.objectif || '—' },
-    { label: 'Fréquence par semaine', value: p.frequence || '—' },
+    {
+      title: 'Profil sportif',
+      items: [
+        { label: 'Prénom', value: p.first_name || '—' },
+        { label: 'Adresse e-mail', value: p.email || auth.user?.email || '—' },
+        { label: 'Sport pratiqué', value: p.sport || '—' },
+        { label: 'Niveau', value: p.level || '—' },
+        { label: 'Objectif', value: objectifLabel(p.objectif) },
+        { label: 'Fréquence par semaine', value: p.frequence || '—' },
+      ],
+    },
+    {
+      title: 'Données physiques',
+      items: [
+        { label: 'Âge', value: p.age != null ? `${p.age} ans` : '—' },
+        { label: 'Sexe', value: sexeLabel(p.sexe) },
+        { label: 'Poids', value: p.poids_kg != null ? `${p.poids_kg} kg` : '—' },
+        { label: 'Taille', value: p.taille_cm != null ? `${p.taille_cm} cm` : '—' },
+      ],
+    },
+    {
+      title: 'Préférences alimentaires',
+      items: [
+        { label: 'Régime alimentaire', value: joinLabels(auth.profileDietary?.regime) },
+        { label: 'Allergies / intolérances', value: joinLabels(auth.profileDietary?.allergene) },
+        { label: 'Ingrédients évités', value: joinNames(auth.profileTastes?.disliked), wide: true },
+      ],
+    },
   ]
 })
 </script>

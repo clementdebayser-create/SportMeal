@@ -6,8 +6,8 @@
         variant="ghost"
         class="rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground"
       >
-        <NuxtLink to="/account">
-          {{ auth.firstName ? `Bonjour ${auth.firstName}` : 'Mon compte' }}
+        <NuxtLink :to="onAccountPage ? '/' : '/account'">
+          {{ onAccountPage ? 'Accueil' : 'Mon profil' }}
         </NuxtLink>
       </Button>
       <Button
@@ -39,6 +39,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const auth = useAuthStore()
 const logout = useLogout()
+const route = useRoute()
+
+/** Sur la page profil, le lien devient un retour vers l'accueil. */
+const onAccountPage = computed(() => route.path === '/account')
 </script>

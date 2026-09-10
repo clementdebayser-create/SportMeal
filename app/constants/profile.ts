@@ -18,6 +18,16 @@ export const SPORTS = [
 
 export const TRAINING_FREQUENCIES = ['1–2×', '3–4×', '5–6×', '7×+'] as const
 
+/** Niveau de pratique (colonne `users.level`). */
+export const LEVELS = ['Débutant', 'Intermédiaire', 'Confirmé', 'Avancé'] as const
+
+/** Sexe (colonne `users.sexe`) — champ optionnel. */
+export const SEXES = [
+  { value: 'homme', label: 'Homme' },
+  { value: 'femme', label: 'Femme' },
+  { value: 'autre', label: 'Autre' },
+] as const
+
 /**
  * Objectifs sportifs — valeurs partagées entre le profil utilisateur
  * (colonne `objectif`) et les filtres de « Mon repas du soir » (tags `objectif`).

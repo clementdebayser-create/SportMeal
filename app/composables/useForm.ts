@@ -17,9 +17,9 @@ export function useForm<T extends Record<string, string>>(initial: T, rules: Rul
 
   const ruleEntries = Object.entries(rules) as [string, ValidationRule[]][]
 
-  function validate(): boolean {
+  function runRules(entries: [string, ValidationRule[]][]): boolean {
     let valid = true
-    for (const [key, fieldRules] of ruleEntries) {
+    for (const [key, fieldRules] of entries) {
       let message: string | undefined
       for (const rule of fieldRules ?? []) {
         message = rule((values as Record<string, string>)[key] ?? '')
@@ -29,6 +29,15 @@ export function useForm<T extends Record<string, string>>(initial: T, rules: Rul
       if (message) valid = false
     }
     return valid
+  }
+
+  function validate(): boolean {
+    return runRules(ruleEntries)
+  }
+
+  /** Valide un sous-ensemble de champs (utile pour un formulaire multi-étapes). */
+  function validateFields(keys: readonly string[]): boolean {
+    return runRules(ruleEntries.filter(([key]) => keys.includes(key)))
   }
 
   function reset() {
@@ -58,6 +67,7 @@ export function useForm<T extends Record<string, string>>(initial: T, rules: Rul
     submitting,
     submitError,
     validate,
+    validateFields,
     reset,
     handleSubmit,
   }

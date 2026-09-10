@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { email, required } from '~/lib/validators'
+import { email, required } from '~/utils/validators'
 
 definePageMeta({ middleware: 'guest' })
 

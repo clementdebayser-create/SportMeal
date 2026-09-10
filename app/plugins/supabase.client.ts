@@ -1,11 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
+import type { Database } from '~/types/database.types'
 
 /**
- * Crée le client Supabase (client-side) et hydrate le store d'auth :
+ * Crée le client Supabase (client-side), le fournit (`$supabase` → `useSupabase()`)
+ * et hydrate le store d'auth :
  *  - `getSession()` initial, attendu avant le montage de l'app pour que le
- *    middleware `auth` lise une session fiable (le profil, lui, se charge
- *    ensuite de façon non bloquante — cf. `profileStatus`) ;
+ *    middleware `auth` lise une session fiable (le profil se charge ensuite de
+ *    façon non bloquante — cf. `profileStatus`) ;
  *  - `onAuthStateChange` pour refléter connexions / déconnexions / refresh.
+ *
+ * Le client est passé explicitement à `setFromSession` : à ce stade `$supabase`
+ * n'est pas encore injecté, donc `useSupabase()` échouerait.
  */
 export default defineNuxtPlugin(async () => {
   const { public: config } = useRuntimeConfig()
@@ -16,7 +21,7 @@ export default defineNuxtPlugin(async () => {
     )
   }
 
-  const supabase = createClient(config.apiUrl, config.key, {
+  const supabase = createClient<Database>(config.apiUrl, config.key, {
     auth: {
       persistSession: true,
       autoRefreshToken: true,

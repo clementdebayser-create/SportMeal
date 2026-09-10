@@ -41,7 +41,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/image',
     '@pinia/nuxt',
-    'pinia-plugin-persistedstate/nuxt',
     '@vueuse/nuxt',
     'shadcn-nuxt'
   ],
